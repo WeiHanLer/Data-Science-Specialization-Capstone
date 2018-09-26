@@ -1,0 +1,31 @@
+blogs <- readLines("./en_US/en_US.blogs.txt", encoding = "UTF-8", skipNul = TRUE)
+news <- readLines("./en_US/en_US.news.txt", encoding = "UTF-8", skipNul = TRUE)
+twitter <- readLines("./en_US/en_US.twitter.txt", encoding = "UTF-8", skipNul = TRUE)
+
+
+blogs.size <- file.info("./en_US/en_US.blogs.txt")$size / 1024 ^ 2
+news.size <- file.info("./en_US/en_US.news.txt")$size / 1024 ^ 2
+twitter.size <- file.info("./en_US/en_US.twitter.txt")$size / 1024 ^ 2
+
+blogwordcount<-sum(stri_count_words(blogs))
+newswordcount<-sum(stri_count_words(news))
+twitterwordcount<-sum(stri_count_words(twitter))
+
+bloglinecount<-length(blogs)
+newslinecount<-length(news)
+twitterlinecount<-length(twitter)
+
+
+exploreblog<-blogs[sample(blogs,length(blogs)*0.001,replace=FALSE),]
+
+
+corpus <- VCorpus(VectorSource(sampledata))
+toSpace <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
+corpus <- tm_map(corpus, toSpace, "(f|ht)tp(s?)://(.*)[.][a-z]+")
+corpus <- tm_map(corpus, toSpace, "@[^\\s]+")
+corpus <- tm_map(corpus, tolower)
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, stripWhitespace)
+corpus <- tm_map(corpus, PlainTextDocument)
