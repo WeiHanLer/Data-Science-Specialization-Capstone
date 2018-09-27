@@ -1,49 +1,46 @@
-blogs <- readLines("./en_US/en_US.blogs.txt", encoding = "UTF-8", skipNul = TRUE)
-news <- readLines("./en_US/en_US.news.txt", encoding = "UTF-8", skipNul = TRUE)
-twitter <- readLines("./en_US/en_US.twitter.txt", encoding = "UTF-8", skipNul = TRUE)
+```{r}
+library(RWeka)
+library(ggplot2)
+library(tm)
 
+#UTF-8 encoding setting to accomodate for most type of characters seen in the text.
 
-blogs.size <- file.info("./en_US/en_US.blogs.txt")$size / 1024 ^ 2
-news.size <- file.info("./en_US/en_US.news.txt")$size / 1024 ^ 2
-twitter.size <- file.info("./en_US/en_US.twitter.txt")$size / 1024 ^ 2
+blogs<- file("./en_US/en_US.blogs.txt")
+blogs <- readLines(blogs,encoding = "UTF-8", skipNul = TRUE)
 
-blogwordcount<-sum(stri_count_words(blogs))
-newswordcount<-sum(stri_count_words(news))
-twitterwordcount<-sum(stri_count_words(twitter))
+news<- file("./en_US/en_US.news.txt")
+news <- readLines(news,encoding = "UTF-8", skipNul = TRUE)
 
-bloglinecount<-length(blogs)
-newslinecount<-length(news)
-twitterlinecount<-length(twitter)
+twitter<- file("./en_US/en_US.twitter.txt")
+twitter <- readLines(twitter,encoding = "UTF-8", skipNul = TRUE)
 
-
-exploreblog<-blogs[sample(blogs,length(blogs)*0.001,replace=FALSE),]
-
-
-corpus <- VCorpus(VectorSource(sampledata))
-toSpace <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
-corpus <- tm_map(corpus, toSpace, "(f|ht)tp(s?)://(.*)[.][a-z]+")
-corpus <- tm_map(corpus, toSpace, "@[^\\s]+")
-corpus <- tm_map(corpus, tolower)
-corpus <- tm_map(corpus, removeWords, stopwords("en"))
-corpus <- tm_map(corpus, removePunctuation)
-corpus <- tm_map(corpus, removeNumbers)
-corpus <- tm_map(corpus, stripWhitespace)
-corpus <- tm_map(corpus, PlainTextDocument)
-
+```
 
 
 ```{r}
+#Obtaining file size for separate source files
+
 blogs.size <- file.info("./en_US/en_US.blogs.txt")$size / 1024 ^ 2
 news.size <- file.info("./en_US/en_US.news.txt")$size / 1024 ^ 2
 twitter.size <- file.info("./en_US/en_US.twitter.txt")$size / 1024 ^ 2
 
+
+#Obtaining word count for separate source files
 blogwordcount<-sum(stri_count_words(blogs))
 newswordcount<-sum(stri_count_words(news))
 twitterwordcount<-sum(stri_count_words(twitter))
 
+
+#Obtaining number of lines for separate source files
 bloglinecount<-length(blogs)
 newslinecount<-length(news)
 twitterlinecount<-length(twitter)
+
+size<- c(blogs.size,news.size,twitter.size)
+wordcount<-c(blogwordcount,newswordcount,twitterwordcount)
+linecount<-c(bloglinecount,newslinecount,twitterlinecount)
+
+matrix(c(size,wordcount,linecount),ncol=3,byrow=TRUE)
 
 
 exploreblog<-blogs[sample(blogs,length(blogs)*0.001,replace=FALSE),]
