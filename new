@@ -29,3 +29,59 @@ corpus <- tm_map(corpus, removePunctuation)
 corpus <- tm_map(corpus, removeNumbers)
 corpus <- tm_map(corpus, stripWhitespace)
 corpus <- tm_map(corpus, PlainTextDocument)
+
+
+
+```{r}
+blogs.size <- file.info("./en_US/en_US.blogs.txt")$size / 1024 ^ 2
+news.size <- file.info("./en_US/en_US.news.txt")$size / 1024 ^ 2
+twitter.size <- file.info("./en_US/en_US.twitter.txt")$size / 1024 ^ 2
+
+blogwordcount<-sum(stri_count_words(blogs))
+newswordcount<-sum(stri_count_words(news))
+twitterwordcount<-sum(stri_count_words(twitter))
+
+bloglinecount<-length(blogs)
+newslinecount<-length(news)
+twitterlinecount<-length(twitter)
+
+
+exploreblog<-blogs[sample(blogs,length(blogs)*0.001,replace=FALSE),]
+
+data.sample <- c(sample(blogs, length(blogs) * 0.001),
+                 sample(news, length(news) * 0.001),
+                 sample(twitter, length(twitter) * 0.001))
+
+corpus <- VCorpus(VectorSource(data.sample))
+corpus <- tm_map(corpus, content_transformer(function(x, pattern) gsub(pattern, " ", x)), "(f|ht)tp(s?)://(.*)[.][a-z]+")
+corpus <- tm_map(corpus, content_transformer(function(x, pattern) gsub(pattern, " ", x)), "@[^\\s]+")
+corpus <- tm_map(corpus, tolower)
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, stripWhitespace)
+corpus <- tm_map(corpus, PlainTextDocument)
+
+
+
+
+
+getFreq <- function(tdm) {
+  freq <- sort(rowSums(as.matrix(tdm)), decreasing = TRUE)
+  return(data.frame(word = names(freq), freq = freq))
+}
+bigram <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
+trigram <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
+makePlot <- function(data, label) {
+  ggplot(data[1:30,], aes(reorder(word, -freq), freq)) +
+         labs(x = label, y = "Frequency") +
+         theme(axis.text.x = element_text(angle = 60, size = 12, hjust = 1)) +
+         geom_bar(stat = "identity", fill = I("grey50"))
+}
+
+# Get frequencies of most common n-grams in data sample
+freq1 <- getFreq(removeSparseTerms(TermDocumentMatrix(corpus), 0.9999))
+freq2 <- getFreq(removeSparseTerms(TermDocumentMatrix(corpus, control = list(tokenize = bigram)), 0.9999))
+freq3 <- getFreq(removeSparseTerms(TermDocumentMatrix(corpus, control = list(tokenize = trigram)), 0.9999))
+
+```
