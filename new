@@ -1,9 +1,35 @@
+---
+title: "Data Science Capstone Project"
+author: "Ler Wei Han"
+date: "September 30, 2018"
+output: html_document
+---
+
+#Milestone Report
+This report is supposed to show my progress for my capstone project on Natural Language Processing. In this report I will attempt to demosntrate that I have successfully:
+
+1. Downloaded the data and successfully loaded it in for analysis.
+2. Created a basic report of summary statistics about the data set.
+3. Reported any intersting findings I have amassed so far.
+
+
+##Loading the data
+Loading the necessary packages and downloading the data fr this project.
 ```{r}
+#Loading the necessary packages
 library(RWeka)
 library(ggplot2)
 library(tm)
 
-#UTF-8 encoding setting to accomodate for most type of characters seen in the text.
+
+
+fileURL <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
+if(!file.exists(basename(fileURL))){
+    download.file(fileURL)
+    unzip(basename(fileURL))
+}
+
+#Reading in the data. UTF-8 encoding setting to accomodate for most type of characters seen in the text.
 
 blogs<- file("./en_US/en_US.blogs.txt")
 blogs <- readLines(blogs,encoding = "UTF-8", skipNul = TRUE)
@@ -16,7 +42,7 @@ twitter <- readLines(twitter,encoding = "UTF-8", skipNul = TRUE)
 
 ```
 
-
+A verysimple summary is done to gather basic information on the data that we are dealing with.
 ```{r}
 #Obtaining file size for separate source files
 
@@ -40,15 +66,34 @@ size<- c(blogs.size,news.size,twitter.size)
 wordcount<-c(blogwordcount,newswordcount,twitterwordcount)
 linecount<-c(bloglinecount,newslinecount,twitterlinecount)
 
-matrix(c(size,wordcount,linecount),ncol=3,byrow=TRUE)
+
+```
+
+A summary of the file size, word count and number of lines is produced in a table.
+```{r}
+table<-matrix(c(size,wordcount,linecount),nrow =3,byrow = FALSE)
+colnames(table)<- c("size","wordcount","linecount")
+rownames(table)<-c("blog","news","twitter")
+
+```
 
 
-exploreblog<-blogs[sample(blogs,length(blogs)*0.001,replace=FALSE),]
+#Cleaning the Data
 
-data.sample <- c(sample(blogs, length(blogs) * 0.001),
-                 sample(news, length(news) * 0.001),
-                 sample(twitter, length(twitter) * 0.001))
+```{r}
 
+#only a subset of the data will be used for exploration due to large file size
+data.sample <- c(sample(blogs, 10000),
+                 sample(news, 10000),
+                 sample(twitter, 10000))
+
+```
+The data is organised into a corpus and cleaned with the help of the RWeka package.
+The cleaning process is necessary to extract useful and meaningful contents from the text source, regardless of the text source. 
+The cleaning process removes URLS, special characters, stopwords, unnecessary white spaces, punctuations, numbers as well as change all text to lower case.
+
+
+```{r}
 corpus <- VCorpus(VectorSource(data.sample))
 corpus <- tm_map(corpus, content_transformer(function(x, pattern) gsub(pattern, " ", x)), "(f|ht)tp(s?)://(.*)[.][a-z]+")
 corpus <- tm_map(corpus, content_transformer(function(x, pattern) gsub(pattern, " ", x)), "@[^\\s]+")
@@ -59,21 +104,27 @@ corpus <- tm_map(corpus, removeNumbers)
 corpus <- tm_map(corpus, stripWhitespace)
 corpus <- tm_map(corpus, PlainTextDocument)
 
+```
 
-
+#Data Exploration and Basic Visualization of Results
+```{r}
 
 
 getFreq <- function(tdm) {
   freq <- sort(rowSums(as.matrix(tdm)), decreasing = TRUE)
   return(data.frame(word = names(freq), freq = freq))
 }
+
+#Creating bigram and trigram tokenizing functions to recognise two and three words cluster. 
 bigram <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
 trigram <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
+
+
 makePlot <- function(data, label) {
   ggplot(data[1:30,], aes(reorder(word, -freq), freq)) +
-         labs(x = label, y = "Frequency") +
-         theme(axis.text.x = element_text(angle = 60, size = 12, hjust = 1)) +
-         geom_bar(stat = "identity", fill = I("grey50"))
+    labs(x = label, y = "Frequency") +
+    theme(axis.text.x = element_text(angle = 60, size = 12, hjust = 1)) +
+    geom_bar(stat = "identity", fill = I("grey50"))
 }
 
 # Get frequencies of most common n-grams in data sample
@@ -82,3 +133,17 @@ freq2 <- getFreq(removeSparseTerms(TermDocumentMatrix(corpus, control = list(tok
 freq3 <- getFreq(removeSparseTerms(TermDocumentMatrix(corpus, control = list(tokenize = trigram)), 0.9999))
 
 ```
+
+
+
+top40 <- function(df, title) {
+  df <- df[1:40,]
+  df$n_gram <- factor(df$n_gram, levels = df$n_gram[order(-df$freq)])
+  ggplot(df, aes(x = n_gram, y = freq)) +
+    geom_bar(stat = "identity", fill = "dodgerblue3", colour = "gray40") +
+    labs(title = title, x="N-Gram", y="Count") +
+    theme(axis.text.x = element_text(angle=60, size=12, hjust = 1),
+          axis.title = element_text(size=14, face="bold"),
+          plot.title = element_text(size=16, face="bold"))
+}
+top40(uni_freq, "40 Most Common Unigrams")
