@@ -120,6 +120,20 @@ bigram <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
 trigram <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
 
 
+
+
+
+unigram<-TermDocumentMatrix(corpus)
+unigram<-sort(rowSums(as.matrix(unigram)), decreasing = TRUE)
+unigram<- data.frame(word=names(freq),freq=freq)
+
+
+TermDocumentMatrix(corpus, control = list(tokenize = bigram))
+TermDocumentMatrix(corpus, control = list(tokenize = trigram))
+
+
+
+
 makePlot <- function(data, label) {
   ggplot(data[1:30,], aes(reorder(word, -freq), freq)) +
     labs(x = label, y = "Frequency") +
