@@ -6,7 +6,7 @@ output: html_document
 ---
 
 #Milestone Report
-This report is supposed to show my progress for my capstone project on Natural Language Processing. In this report I will attempt to demosntrate that I have successfully:
+This report is supposed to show my progress for my capstone project on Natural Language Processing. In this report, I will attempt to demosntrate that I have successfully:
 
 1. Downloaded the data and successfully loaded it in for analysis.
 2. Created a basic report of summary statistics about the data set.
@@ -14,25 +14,27 @@ This report is supposed to show my progress for my capstone project on Natural L
 
 
 ##Loading the data
-Loading the necessary packages and downloading the data fr this project.
+The necessary packages for text mining and NLP are loaded. The data that we will be using is downloaded and read in as lines.
 ```{r}
 #Loading the necessary packages
 library(RWeka)
 library(ggplot2)
 library(tm)
+library(stringi)
 
 
-
+#Downloading the data
 fileURL <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
 if(!file.exists(basename(fileURL))){
     download.file(fileURL)
     unzip(basename(fileURL))
 }
 
-#Reading in the data. UTF-8 encoding setting to accomodate for most type of characters seen in the text.
 
+#Reading in the data. UTF-8 encoding setting to accomodate for most type of characters seen in the text.
 blogs<- file("./en_US/en_US.blogs.txt")
 blogs <- readLines(blogs,encoding = "UTF-8", skipNul = TRUE)
+
 
 news<- file("./en_US/en_US.news.txt")
 news <- readLines(news,encoding = "UTF-8", skipNul = TRUE)
@@ -42,13 +44,14 @@ twitter <- readLines(twitter,encoding = "UTF-8", skipNul = TRUE)
 
 ```
 
-A verysimple summary is done to gather basic information on the data that we are dealing with.
+
+A very simple summary is done to gather basic information on the data that we are dealing with.
 ```{r}
 #Obtaining file size for separate source files
 
-blogs.size <- file.info("./en_US/en_US.blogs.txt")$size / 1024 ^ 2
-news.size <- file.info("./en_US/en_US.news.txt")$size / 1024 ^ 2
-twitter.size <- file.info("./en_US/en_US.twitter.txt")$size / 1024 ^ 2
+blogs.size <- paste(file.info("./en_US/en_US.blogs.txt")$size / 1024 ^ 2,"MB")
+news.size <- paste(file.info("./en_US/en_US.news.txt")$size / 1024 ^ 2,"MB")
+twitter.size <- paste(file.info("./en_US/en_US.twitter.txt")$size / 1024 ^ 2,"MB")
 
 
 #Obtaining word count for separate source files
@@ -80,15 +83,22 @@ rownames(table)<-c("blog","news","twitter")
 
 #Cleaning the Data
 
+For the purpose of exploration, only a small subset of data is used out of the corpus.Random sampling is used to subset the required data. To resolve the issue of special and unique characters in order to use the 'tolower' function, the files are converted from UTF-8 encoding to ASCII.
 ```{r}
 
-#only a subset of the data will be used for exploration due to large file size
-data.sample <- c(sample(blogs, 10000),
-                 sample(news, 10000),
-                 sample(twitter, 10000))
+#Converting from UTF-8 encoding to ASCII 
+blogs <- iconv(blogs, 'UTF-8', 'ASCII')
+news <- iconv(news, 'UTF-8', 'ASCII')
+twitter <- iconv(twitter, 'UTF-8', 'ASCII')
+
+
+#Sampling 5000 lines from each source data
+data.sample <- c(sample(blogs, 5000),
+                 sample(news, 5000),
+                 sample(twitter, 5000))
 
 ```
-The data is organised into a corpus and cleaned with the help of the RWeka package.
+The data is organised into a corpus and cleaned with the help of the **tm** package.
 The cleaning process is necessary to extract useful and meaningful contents from the text source, regardless of the text source. 
 The cleaning process removes URLS, special characters, stopwords, unnecessary white spaces, punctuations, numbers as well as change all text to lower case.
 
@@ -97,7 +107,7 @@ The cleaning process removes URLS, special characters, stopwords, unnecessary wh
 corpus <- VCorpus(VectorSource(data.sample))
 corpus <- tm_map(corpus, content_transformer(function(x, pattern) gsub(pattern, " ", x)), "(f|ht)tp(s?)://(.*)[.][a-z]+")
 corpus <- tm_map(corpus, content_transformer(function(x, pattern) gsub(pattern, " ", x)), "@[^\\s]+")
-corpus <- tm_map(corpus, tolower)
+corpus <- tm_map(corpus,content_transformer(stringi::stri_trans_tolower))
 corpus <- tm_map(corpus, removeWords, stopwords("en"))
 corpus <- tm_map(corpus, removePunctuation)
 corpus <- tm_map(corpus, removeNumbers)
@@ -105,35 +115,74 @@ corpus <- tm_map(corpus, stripWhitespace)
 corpus <- tm_map(corpus, PlainTextDocument)
 
 ```
+Now, we are ready to explore our cleaned corpus!
+
+
 
 #Data Exploration and Basic Visualization of Results
+
+With the help of **RWeka** package, I am able to find out the most frequently occuring one,two and three word clusters in the corpus. Structuring my findings into a data frame, I made use of the popular **ggplot** package to output my results in histograms.
+
 ```{r}
-
-
-getFreq <- function(tdm) {
-  freq <- sort(rowSums(as.matrix(tdm)), decreasing = TRUE)
-  return(data.frame(word = names(freq), freq = freq))
-}
-
-#Creating bigram and trigram tokenizing functions to recognise two and three words cluster. 
-bigram <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
-trigram <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
-
-
-
-
+#Setting the function for uni-,bi- and tri- grams
 
 unigram<-TermDocumentMatrix(corpus)
-unigram<-sort(rowSums(as.matrix(unigram)), decreasing = TRUE)
-unigram<- data.frame(word=names(freq),freq=freq)
+
+#Creating bigram tokenizing function to recognise two words cluster.
+bigram <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
+bigram<-TermDocumentMatrix(corpus, control = list(tokenize = bigram))
+
+#Creating trigram tokenizing functions to recognise three words cluster.
+trigram <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
+trigram<-TermDocumentMatrix(corpus, control = list(tokenize = trigram))
 
 
-TermDocumentMatrix(corpus, control = list(tokenize = bigram))
-TermDocumentMatrix(corpus, control = list(tokenize = trigram))
+
+# To structure the TermDocumentMatrix in a data frame
+frequency_dataframe<-function(x){
+   ngram<-sort(rowSums(as.matrix(x)), decreasing = TRUE)
+  return(data.frame(ngram=names(ngram),frequency=ngram))
+
+}
+
+#Setting the plotting function. Only the top 30 n-grams are plotted.
+histogram <- function(data, label) {
+  corpus<-corpus[1:30,]
+  ggplot(corpus, aes(x=reorder(word, -freq),y= freq)) +
+    geom_bar(stat = "identity", fill = I("grey50"))+
+    labs(x = label, y = "Frequency") +
+    theme(axis.text.x = element_text(angle = 60, size = 12, hjust = 1)) 
+    
+}
+
+top40 <- function(df, title) {
+  df <- df[1:40,]
+  df$n_gram <- factor(df$n_gram, levels = df$n_gram[order(-df$freq)])
+  ggplot(df, aes(x = n_gram, y = freq)) +
+    geom_bar(stat = "identity", fill = "dodgerblue3", colour = "gray40") +
+    labs(title = title, x="N-Gram", y="Count") +
+    theme(axis.text.x = element_text(angle=60, size=12, hjust = 1),
+          axis.title = element_text(size=14, face="bold"),
+          plot.title = element_text(size=16, face="bold"))
+}
+top40(uni_freq, "40 Most Common Unigrams")
+
+
+unigram<-frequency_dataframe(unigram)
+ggplot(unigram,aes(ngram,freq))
 
 
 
 
+bigram<-frequency_dataframe(bigram)
+ggplot(bigram,aes(ngram,freq))
+
+
+
+unigram<-frequency_dataframe(unigram)
+ggplot(trigram,aes(ngram,freq))
+
+ 
 makePlot <- function(data, label) {
   ggplot(data[1:30,], aes(reorder(word, -freq), freq)) +
     labs(x = label, y = "Frequency") +
@@ -141,10 +190,6 @@ makePlot <- function(data, label) {
     geom_bar(stat = "identity", fill = I("grey50"))
 }
 
-# Get frequencies of most common n-grams in data sample
-freq1 <- getFreq(removeSparseTerms(TermDocumentMatrix(corpus), 0.9999))
-freq2 <- getFreq(removeSparseTerms(TermDocumentMatrix(corpus, control = list(tokenize = bigram)), 0.9999))
-freq3 <- getFreq(removeSparseTerms(TermDocumentMatrix(corpus, control = list(tokenize = trigram)), 0.9999))
 
 ```
 
