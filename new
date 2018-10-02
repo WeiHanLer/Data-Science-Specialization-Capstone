@@ -73,10 +73,11 @@ linecount<-c(bloglinecount,newslinecount,twitterlinecount)
 ```
 
 A summary of the file size, word count and number of lines is produced in a table.
-```{r}
-table<-matrix(c(size,wordcount,linecount),nrow =3,byrow = FALSE)
+```{r,warning=FALSE}
+summarytable<-matrix(c(size,wordcount,linecount),nrow =3,byrow = FALSE)
 colnames(table)<- c("size","wordcount","linecount")
 rownames(table)<-c("blog","news","twitter")
+summarytable
 
 ```
 
@@ -127,10 +128,11 @@ With the help of **RWeka** package, I am able to find out the most frequently oc
 #Setting the function for uni-,bi- and tri- grams
 
 unigram<-TermDocumentMatrix(corpus)
+unigram<-tokenize_ngrams(TermDocumentMatrix(corpus),n=1)
 
 #Creating bigram tokenizing function to recognise two words cluster.
 bigram <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
-bigram<-TermDocumentMatrix(corpus, control = list(tokenize = bigram))
+bigram<-TermDocumentMatrix(VCorpus(corpus), control = list(tokenize = bigram))
 
 #Creating trigram tokenizing functions to recognise three words cluster.
 trigram <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
@@ -146,54 +148,43 @@ frequency_dataframe<-function(x){
 }
 
 #Setting the plotting function. Only the top 30 n-grams are plotted.
-histogram <- function(data, label) {
+histogram <- function(corpus,x_axis,title) {
+  corpus<-frequency_dataframe(corpus)
   corpus<-corpus[1:30,]
-  ggplot(corpus, aes(x=reorder(word, -freq),y= freq)) +
+  ggplot(corpus, aes(x=reorder(ngram, -freq),y= freq)) +
     geom_bar(stat = "identity", fill = I("grey50"))+
-    labs(x = label, y = "Frequency") +
+    labs(title,x = x_axis, y = "Frequency") +
     theme(axis.text.x = element_text(angle = 60, size = 12, hjust = 1)) 
     
 }
 
-top40 <- function(df, title) {
-  df <- df[1:40,]
-  df$n_gram <- factor(df$n_gram, levels = df$n_gram[order(-df$freq)])
-  ggplot(df, aes(x = n_gram, y = freq)) +
-    geom_bar(stat = "identity", fill = "dodgerblue3", colour = "gray40") +
-    labs(title = title, x="N-Gram", y="Count") +
-    theme(axis.text.x = element_text(angle=60, size=12, hjust = 1),
-          axis.title = element_text(size=14, face="bold"),
-          plot.title = element_text(size=16, face="bold"))
-}
-top40(uni_freq, "40 Most Common Unigrams")
 
+```
+1. unigram histogram
 
-unigram<-frequency_dataframe(unigram)
-ggplot(unigram,aes(ngram,freq))
-
-
-
-
-bigram<-frequency_dataframe(bigram)
-ggplot(bigram,aes(ngram,freq))
-
-
-
-unigram<-frequency_dataframe(unigram)
-ggplot(trigram,aes(ngram,freq))
-
- 
-makePlot <- function(data, label) {
-  ggplot(data[1:30,], aes(reorder(word, -freq), freq)) +
-    labs(x = label, y = "Frequency") +
-    theme(axis.text.x = element_text(angle = 60, size = 12, hjust = 1)) +
-    geom_bar(stat = "identity", fill = I("grey50"))
-}
-
+```{r}
+histogram(unigram,"unigram" ,"Top 30 Unigrams")
 
 ```
 
 
+1. bi-gram histogram
+
+```{r}
+histogram(bigram,"bigram" ,"Top 30 Bigrams")
+
+```
+
+3. tri-gram histogram
+
+```{r}
+histogram(trigram,"trigram" ,"Top 30 Triigrams")
+
+```
+
+
+Exploratory analysis complete. This concludes my milestone report.
+
 
 top40 <- function(df, title) {
   df <- df[1:40,]
@@ -205,4 +196,3 @@ top40 <- function(df, title) {
           axis.title = element_text(size=14, face="bold"),
           plot.title = element_text(size=16, face="bold"))
 }
-top40(uni_freq, "40 Most Common Unigrams")
