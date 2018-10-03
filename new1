@@ -34,16 +34,16 @@ if(!file.exists(basename(fileURL))){
 #Reading in the data. UTF-8 encoding setting to accomodate for most type of characters seen in the text.
 blogs<- file("./en_US/en_US.blogs.txt")
 blogs <- readLines(blogs,encoding = "UTF-8", skipNul = TRUE)
-blogs<- subset(blogs,!is.na(blogs))
+
 
 
 news<- file("./en_US/en_US.news.txt")
 news <- readLines(news,encoding = "UTF-8", skipNul = TRUE)
-news<-subset(news,!is.na(news))
+
 
 twitter<- file("./en_US/en_US.twitter.txt")
 twitter <- readLines(twitter,encoding = "UTF-8", skipNul = TRUE)
-twitter<-subset(twitter,!is.na(twitter))
+
 ```
 
 A very simple summary is done to gather basic information on the data that we are dealing with.
@@ -89,13 +89,17 @@ For the purpose of exploration, only a small subset of data is used out of the c
 ```{r}
 
 #Converting from UTF-8 encoding to ASCII 
-blogs <- iconv(blogs, 'UTF-8', 'ASCII')
+blogs<- iconv(blogs, 'UTF-8', 'ASCII')
+blogs<- na.omit(blogs)
 
-news <- iconv(news, 'UTF-8', 'ASCII')
+news<- iconv(news, 'UTF-8', 'ASCII')
+news<- na.omit(news)
 
-twitter <- iconv(twitter, 'UTF-8', 'ASCII')
 
-#Sampling 5000 lines from each source data
+twitter<- iconv(twitter, 'UTF-8', 'ASCII')
+twitter<-na.omit(twitter)
+
+#Sampling 1000 lines from each source data
 data.sample <- c(sample(blogs, 1000),
                  sample(news, 1000),
                  sample(twitter, 1000))
@@ -106,7 +110,7 @@ The cleaning process is necessary to extract useful and meaningful contents from
 The cleaning process removes URLS, special characters, stopwords, unnecessary white spaces, punctuations, numbers as well as change all text to lower case.
 
 
-```{r,warning=FALSE}
+```{r,warning=F}
 
 corpus <- VCorpus(VectorSource(data.sample))
 corpus <- tm_map(corpus, content_transformer(function(x, pattern) gsub(pattern, " ", x)), "(f|ht)tp(s?)://(.*)[.][a-z]+")
@@ -135,7 +139,7 @@ unigram<-TermDocumentMatrix(corpus)
 
 #Creating bigram tokenizing function to recognise two words cluster.
 bigram <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
-bigram<-removeSparseTerms(TermDocumentMatrix(corpus, control = list(tokenize = bigram)))
+bigram<-TermDocumentMatrix(corpus, control = list(tokenize = bigram))
 
 #Creating trigram tokenizing functions to recognise three words cluster.
 trigram <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
@@ -191,19 +195,3 @@ histogram(trigram,"trigram" ,"Top 30 Trigrams")
 Exploratory analysis complete. This concludes my milestone report.
 
 
-1. bi-gram histogram
-
-```{r}
-histogram(bigram,"bigram" ,"Top 30 Bigrams")
-
-```
-
-3. tri-gram histogram
-
-```{r}
-histogram(trigram,"trigram" ,"Top 30 Triigrams")
-
-```
-
-
-Exploratory analysis complete. This concludes my milestone report.
