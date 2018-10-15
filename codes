@@ -10,3 +10,101 @@ saveRDS(u, "dfm1.rds")3
 
 
 stringr package
+
+
+
+``{r, warning=FALSE,message=FALSE}
+#Loading the necessary packages
+library(quanteda)
+library(ggplot2)
+library(stringi)
+library(stopwords)
+library(stringr)
+```
+
+
+```{r, warning=FALSE,message=FALSE}
+#Reading in the data. UTF-8 encoding setting to accomodate for most type of characters seen in the text.
+blogs<- file("./en_US/en_US.blogs.txt")
+blogs <- readLines(blogs,encoding = "UTF-8", skipNul = TRUE)
+
+
+news<- file("./en_US/en_US.news.txt")
+news <- readLines(news,encoding = "UTF-8", skipNul = TRUE)
+
+
+twitter<- file("./en_US/en_US.twitter.txt")
+twitter <- readLines(twitter,encoding = "UTF-8", skipNul = TRUE)
+
+```
+
+
+
+```{r,warning=FALSE,message=FALSE}
+
+
+blogs<- na.omit(blogs)
+
+news<- na.omit(news)
+
+
+twitter<-na.omit(twitter)
+
+
+data.sample <- c(sample(blogs, 1000),
+                 sample(news, 1000),
+                 sample(twitter, 1000))
+
+```
+
+
+
+```{r,warning=FALSE,message=FALSE}
+
+
+Documentfeaturematrix<-function(x,y){
+  token<-tokens(char_tolower(x),remove=stopwords("english"),remove_numbers = T, remove_punct = T,
+remove_symbols = T, remove_separators = T,
+remove_twitter = T, remove_hyphens = T, remove_url = T)
+  dfm(token,ngrams=y)
+  
+  }
+
+Top30ngrams<-function(x){
+  df<-topfeatures(x,30)
+  data.frame(ngram=names(df), freq=df, row.names=NULL)
+}
+setwd("C:/Users/michael/Desktop/coursera/Capstone Milestone/final")
+
+unigram<-Documentfeaturematrix(data.sample,1L)
+unigram<-topfeatures(unigram,n=length(unigram))
+saveRDS(unigram,"saveunigram.RDS")
+
+
+bigram<-Documentfeaturematrix(data.sample,2L)
+bigram<-topfeatures(bigram,n=length(bigram))
+bigram<-gsub("_"," ",names(bigram))
+saveRDS(bigram,"savebigram.RDS")
+
+trigram<-Documentfeaturematrix(data.sample,3L)
+trigram<-topfeatures(trigram,n=length(trigram))
+trigram<-gsub("_"," ",names(trigram))
+saveRDS(trigram,"savetrigram.RDS")
+
+
+PredictNext <- function(input){
+        input <- tolower(input)
+        if(nrow(trigram[]))
+        
+trigram[trigram=="one of the"]        
+        
+        
+        input <- unlist(strsplit(as.character(input), ' '))
+        n <- length(input)
+        }
+
+
+```
+
+
+
