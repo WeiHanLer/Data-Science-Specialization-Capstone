@@ -1,0 +1,12 @@
+gsub("_"," ",names(kkk))
+
+ uuu<-Documentfeaturematrix(data.sample,3L)
+ kkk<-topfeatures(uuu)
+ 
+setwd("C:/Users/HRM_LWH/Desktop/final")
+saveRDS(u, "dfm1.rds")3
+
+
+
+
+stringr package
