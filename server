@@ -30,7 +30,9 @@ PredictNext <- function(input){
 else if(length(ngram[ngram$gram==word(input,n,n),]) > 0){
   select<-ngram[ngram$gram==input,]
   return(as.character(head(select$pred,1)))}
-else{print("the")}
+else if(length(ngram[ngram$gram==word(input,n,n),]) == 0){
+return("no matches found")}
+
 }
   
   
