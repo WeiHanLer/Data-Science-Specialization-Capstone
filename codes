@@ -139,3 +139,48 @@ PredictNext <- function(input){
 }
 
 
+
+
+
+PredictNext <- function(input){
+        inp <- tolower(input)
+        inp <- unlist(strsplit(as.character(inp), ' '))
+        n <- length(inp) 
+        input<-word(input,n-2,n)
+        if(n >= 3 & length(quadgram[quadgram$quad==input,]) > 0){
+          subs<-quadgram[quadgram$quad==input,]
+           head(subs$quadpred,1)
+        } 
+
+        
+        
+        
+        
+        }
+
+
+
+
+return(select[select$quadpred,]) 
+
+ if(length(input) >= 4 & nrow(firstthree(quadgram)[firstthree(quadgram)==firstthree(input),]) > 0){
+     return(head(firstthree(quadgram)[firstthree(quadgram)==firstthree(input),1))   
+
+
+    new <- DT5[.(paste(input[n-3], input[n-2], input[n-1], input[n], sep = " ")), head(.SD, 3), on = "base"]
+                return(new[, output])
+        
+        
+        
+              stri_count_words(trigram)
+        input <- unlist(strsplit(as.character(input), ' '))
+        n <- length(input)
+        }
+
+
+```
+
+
+
+
+
