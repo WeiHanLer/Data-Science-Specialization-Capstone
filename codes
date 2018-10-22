@@ -1,4 +1,5 @@
 
+
 ```{r, warning=FALSE,message=FALSE}
 #Loading the necessary packages
 library(quanteda)
@@ -50,11 +51,11 @@ data.sample <- c(sample(blogs, 1000),
 
 Documentfeaturematrix<-function(x,y){
   token<-tokens(char_tolower(x),remove=stopwords("english"),remove_numbers = T, remove_punct = T,
-remove_symbols = T, remove_separators = T,
-remove_twitter = T, remove_hyphens = T, remove_url = T)
+                remove_symbols = T, remove_separators = T,
+                remove_twitter = T, remove_hyphens = T, remove_url = T)
   dfm(token,ngrams=y)
   
-  }
+}
 
 Top30ngrams<-function(x){
   df<-topfeatures(x,30)
@@ -83,7 +84,7 @@ quadgram<-gsub("_"," ",names(quadgram))
 saveRDS(quadgram,"savequadgram.RDS")
 
 
-  
+
 
 first<- function(x) word(x,1,1)
 firsttwo<-function(x) word(x,1,2)
@@ -95,92 +96,38 @@ outputquadgram<-function(x)word(x,start=4,end=4)
 
 bi<-first(bigram)
 bipred<-outputbigram(bigram)
-bigram<-data.frame(bi,bipred)
+bigram<-data.frame(gram=bi,pred=bipred)
 
 tri<-firsttwo(trigram)
 tripred<-outputtrigram(trigram)
-trigram<-data.fram(tri,tripred)
+trigram<-data.frame(gram=tri,pred=tripred)
 
 quad<-firstthree(quadgram)
 quadpred<-outputquadgram(quadgram)
-quadgram<-data.frame(quad,quadpred)
+quadgram<-data.frame(gram=quad,pred=quadpred)
+
+
+ngram<-rbind(bigram,trigram,quadgram)
+saveRDS(ngram,"ngram.RData")
 
 
 
-input<-word(input,n-3,n)
-        return(input)
+
+
 
 PredictNext <- function(input){
-        inp <- tolower(input)
-        inp <- unlist(strsplit(as.character(inp), ' '))
-        n <- length(inp) 
-        if(n >= 3 & length(quadgram[firstthree(quadgram)==word(input,n-2,n]) > 0){
-            select<-quadgram[firstthree(quadgram)==input]
-          return(head(outputquadgram(select),1))  
-        } else if{n>=2 & length(quadgram[firstthree(quadgram)==word(input,n-1,n]) > 0){
-            select<-quadgram[firstthree(quadgram)==input]
-          return(head(outputquadgram(select),1)}
+  inp <- tolower(input)
+  inp <- unlist(strsplit(as.character(inp), ' '))
+  n <- length(inp) 
+  if(length(ngram[ngram$gram==word(input,n-2,n),]) > 0){
+    select<-ngram[ngram$gram==input,]
+    return(head(select$pred,1))} 
+  } else if(length(ngram[ngram$gram==word(input,n-1,n),]) > 0){
+    select<-ngram[ngram$gram==input,]
+    return(head(select$pred,1))}
+    else if(length(ngram[ngram$gram==word(input,n,n),]) > 0){
+      select<-ngram[ngram$gram==input,]
+      return(head(select$pred,1))}
+  else{return("no match")}
 }
-
-PredictNext <- function(input){
-        inp <- tolower(input)
-        inp <- unlist(strsplit(as.character(inp), ' '))
-        n <- length(inp) 
-        if(length(quadgram[firstthree(quadgram)==word(input,n-2,n]) > 0){
-            select<-quadgram[firstthree(quadgram)==input]
-          return(head(outputquadgram(select),1))  
-        } else if{length(quadgram[firstthree(quadgram)==word(input,n-1,n]) > 0){
-            select<-quadgram[firstthree(quadgram)==input]
-          return(head(outputquadgram(select),1)}
-          else if{length(quadgram[firstthree(quadgram)==word(input,n,n]) > 0){
-            select<-quadgram[firstthree(quadgram)==input]
-          return(head(outputquadgram(select),1)}
-          
-}
-
-
-
-
-
-PredictNext <- function(input){
-        inp <- tolower(input)
-        inp <- unlist(strsplit(as.character(inp), ' '))
-        n <- length(inp) 
-        input<-word(input,n-2,n)
-        if(n >= 3 & length(quadgram[quadgram$quad==input,]) > 0){
-          subs<-quadgram[quadgram$quad==input,]
-           head(subs$quadpred,1)
-        } 
-
-        
-        
-        
-        
-        }
-
-
-
-
-return(select[select$quadpred,]) 
-
- if(length(input) >= 4 & nrow(firstthree(quadgram)[firstthree(quadgram)==firstthree(input),]) > 0){
-     return(head(firstthree(quadgram)[firstthree(quadgram)==firstthree(input),1))   
-
-
-    new <- DT5[.(paste(input[n-3], input[n-2], input[n-1], input[n], sep = " ")), head(.SD, 3), on = "base"]
-                return(new[, output])
-        
-        
-        
-              stri_count_words(trigram)
-        input <- unlist(strsplit(as.character(input), ' '))
-        n <- length(input)
-        }
-
-
-```
-
-
-
-
 
