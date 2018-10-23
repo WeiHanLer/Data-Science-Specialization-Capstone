@@ -11,8 +11,7 @@
 
 suppressWarnings(library(shiny))
 suppressWarnings(library(markdown))
-shinyUI(navbarPage("Data Science Capstone Project",
-                   tabPanel("Prediction App",
+fluidPage(titlePanel("Prediction App"),
                            
                             # Sidebar
                             sidebarLayout(
@@ -23,7 +22,7 @@ shinyUI(navbarPage("Data Science Capstone Project",
                                 submitButton("Enter")
                               ),
                               mainPanel(
-                                h2("Predicted Next Word"),
+                                h3("Predicted Next Word"),
                                 textOutput("prediction"),
                                 br(),
                                 br(),
@@ -48,4 +47,3 @@ shinyUI(navbarPage("Data Science Capstone Project",
                             )
                     )
                  
-))
