@@ -12,38 +12,40 @@
 suppressWarnings(library(shiny))
 suppressWarnings(library(markdown))
 fluidPage(titlePanel("Prediction App"),
-                           
-                            # Sidebar
-                            sidebarLayout(
-                              sidebarPanel(
-                                h3("Text Input Box"),
-                                helpText("Mind your spelling"),
-                                textInput("inputString", "Enter a word or phrase",value = ""),
-                                submitButton("Enter")
-                              ),
-                              mainPanel(
-                                h3("Predicted Next Word"),
-                                textOutput("prediction"),
-                                br(),
-                                br(),
-                                br(),
-                                br(),
-                                br(),
-                                br(),
-                                br(),
-                                br(),
-                                br(),
-                                br(),
-                                br(),
-                                h5("Github Repo:"),
-                                h5("Presentation Deck:")
-                                
-                                # strong("Sentence Input:")
-                                # tags$style(type='text/css', '#text1 {background-color: rgba(255,255,0,0.40); color: blue;}'), 
-                                # textOutput('insert'),
-                                # br()
-                                
-                              )
-                            )
-                    )
-                 
+          
+          # Sidebar
+          sidebarLayout(
+            sidebarPanel(
+              h3("Text Input Box"),
+              helpText("Mind your spelling"),
+              textInput("inputString", "Enter a word or phrase",value = ""),
+              submitButton("Enter")
+            ),
+            mainPanel(
+              h3("Predicted Next Word"),
+              textOutput("prediction"),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              br(),
+              h5("For more info on this app, click on the links for the the presentation deck and github repository "), 
+              tags$a(href = "https://www.google.com/finance/domestic_trends", "Presentation Deck", target = "_blank"),
+              br(),
+              tags$a(href = "https://github.com/whyler12/Data-Science-Specialization-Capstone", "Github Repo", target = "_blank")
+              
+              
+              # strong("Sentence Input:")
+              # tags$style(type='text/css', '#text1 {background-color: rgba(255,255,0,0.40); color: blue;}'), 
+              # textOutput('insert'),
+              # br()
+              
+            )
+          )
+)
