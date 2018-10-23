@@ -19,14 +19,25 @@ shinyUI(navbarPage("Data Science Capstone Project",
                               sidebarPanel(
                                 helpText("Text Input Box. Mind your spelling"),
                                 textInput("inputString", "Enter a word or phrase",value = ""),
-                                br(),
-                                br(),
-                                br(),
-                                br()
+                                submitButton("Enter")
                               ),
                               mainPanel(
                                 h2("Predicted Next Word"),
-                                textOutput("prediction")
+                                textOutput("prediction"),
+                                br(),
+                                br(),
+                                br(),
+                                br(),
+                                br(),
+                                br(),
+                                br(),
+                                br(),
+                                br(),
+                                br(),
+                                br(),
+                                h5("Github Repo:"),
+                                h5("Presentation Deck:")
+                                
                                 # strong("Sentence Input:")
                                 # tags$style(type='text/css', '#text1 {background-color: rgba(255,255,0,0.40); color: blue;}'), 
                                 # textOutput('insert'),
@@ -34,14 +45,14 @@ shinyUI(navbarPage("Data Science Capstone Project",
                                 
                               )
                             )
-                   ),
-                   tabPanel("About",
-                            mainPanel(
-                              HTML("<strong>LER WEI HAN</strong>"),
-                              br(),
-                              HTML("<strong>22 Oct 2018</strong>"),
-                              br()
-                             
-                            )
-                   )
+                    )
+                   # tabPanel("About",
+                   #          mainPanel(
+                   #            HTML("<strong>LER WEI HAN</strong>"),
+                   #            br(),
+                   #            HTML("<strong>22 Oct 2018</strong>"),
+                   #            br()
+                   #           
+                   #          )
+                   # )
 ))
