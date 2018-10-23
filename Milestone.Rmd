@@ -1,27 +1,34 @@
 ---
 title: "Data Science Capstone Project"
 author: "Ler Wei Han"
-date: "September 30, 2018"
+date: "October 11, 2018"
 output: html_document
 ---
 
 #Milestone Report
-This report is supposed to show my progress for my capstone project on Natural Language Processing. In this report, I will attempt to demosntrate that I have successfully:
+This report is meant to show my progress for my capstone project on Natural Language Processing. In this report, I will attempt to demonstrate that I have successfully:
 
 1. Downloaded the data and successfully loaded it in for analysis.
 2. Created a basic report of summary statistics about the data set.
 3. Reported any intersting findings I have amassed so far.
+
+There are more than one more approach to this capstone project as there are multiple packages developed to process texts.
+
+My initial [attempt](http://rpubs.com/whyler12/CMP) at this involves using the **tm** package to clean the data and using **Rweka** for creating n-grams. While it does the work required, it was an ardous task putting it all together to make it work.    
+I soon discovered the **Quanteda** package, an incredibly powerful user-developed tool for natural language processing which made this milestone project a much easier task compared to my previous method. 
+
+More info on the **Quanteda** package and its functions can be found [here](https://cran.r-project.org/web/packages/quanteda/quanteda.pdf).
 
 
 ##Loading the data
 The necessary packages for text mining and NLP are loaded. The data that we will be using is downloaded and read in as lines.
 ```{r, warning=FALSE,message=FALSE}
 #Loading the necessary packages
-library(RWeka)
+library(quanteda)
 library(ggplot2)
-library(tm)
 library(stringi)
-
+library(stopwords)
+```
 ```{r, warning=FALSE,message=FALSE,eval=FALSE}
 #Downloading the data
 fileURL <- "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip"
@@ -86,18 +93,11 @@ summarytable
 
 #Cleaning the Data
 
-For the purpose of exploration, only a small subset of data is used out of the corpus.Random sampling is used to subset the required data. To resolve the issue of special and unique characters in order to use the 'tolower' function, the files are converted from UTF-8 encoding to ASCII.
+For the purpose of exploration, only a small subset of data is used out of the dataset.Random sampling is used to subset the required data. I have also removed the NA values from each sources as part of thedata cleaning process. 
 ```{r,warning=FALSE,message=FALSE}
-
-#Converting from UTF-8 encoding to ASCII 
-blogs<- iconv(blogs, 'UTF-8', 'ASCII')
+#remove NA values
 blogs<- na.omit(blogs)
-
-news<- iconv(news, 'UTF-8', 'ASCII')
 news<- na.omit(news)
-
-
-twitter<- iconv(twitter, 'UTF-8', 'ASCII')
 twitter<-na.omit(twitter)
 
 #Sampling 1000 lines from each source data
@@ -106,22 +106,41 @@ data.sample <- c(sample(blogs, 1000),
                  sample(twitter, 1000))
 
 ```
-The data is organised into a corpus and cleaned with the help of the **tm** package.
+
 The cleaning process is necessary to extract useful and meaningful contents from the text source, regardless of the text source. 
-The cleaning process removes URLS, special characters, stopwords, unnecessary white spaces, punctuations, numbers as well as change all text to lower case.
+
+Making use of the powerful **Quanteda** package, I tokenized the data subset into the one,two and three word clusters. 
+
+The cleaning process removes URLS, special characters, word separators,stopwords, twitter characters, punctuations, numbers change all text to lower case and splits hyphenated words into two.
+
+Subsequently, I am able to identify and sort the most frequently occuring ngrams using the *topfeature* function. 
 
 
 ```{r,warning=FALSE,message=FALSE}
 
-corpus <- VCorpus(VectorSource(data.sample))
-corpus <- tm_map(corpus, content_transformer(function(x, pattern) gsub(pattern, " ", x)), "(f|ht)tp(s?)://(.*)[.][a-z]+")
-corpus <- tm_map(corpus, content_transformer(function(x, pattern) gsub(pattern, " ", x)), "@[^\\s]+")
-corpus <- tm_map(corpus,content_transformer(stringi::stri_trans_tolower))
-corpus <- tm_map(corpus, removeWords, stopwords("en"))
-corpus <- tm_map(corpus, removePunctuation)
-corpus <- tm_map(corpus, removeNumbers)
-corpus <- tm_map(corpus, stripWhitespace)
-corpus <- tm_map(corpus, PlainTextDocument)
+
+Documentfeaturematrix<-function(x,y){
+  token<-tokens(char_tolower(x),remove=stopwords("english"),remove_numbers = T, remove_punct = T,
+remove_symbols = T, remove_separators = T,
+remove_twitter = T, remove_hyphens = T, remove_url = T)
+  dfm(token,ngrams=y)
+  
+  }
+
+Top30ngrams<-function(x){
+  df<-topfeatures(x,30)
+  data.frame(ngram=names(df), freq=df, row.names=NULL)
+}
+
+histogram <- function(df,x_axis,title) {
+    ngramchart<-df[1:30,]
+  ggplot(ngramchart, aes(x=reorder(ngram,freq),y= freq)) +
+    geom_bar(stat = "identity", colour = "black")+
+    labs(title=title,x = x_axis, y = "Frequency") +
+    coord_flip()
+    
+  
+}
 
 ```
 Now, we are ready to explore our cleaned corpuscorpus<-corpus[which(is.na(corpuss))] <- "NULLVALUE"!
@@ -130,49 +149,14 @@ Now, we are ready to explore our cleaned corpuscorpus<-corpus[which(is.na(corpus
 
 #Data Exploration and Basic Visualization of Results
 
-With the help of **RWeka** package, I am able to find out the most frequently occuring one,two and three word clusters in the corpus. Structuring my findings into a data frame, I made use of the popular **ggplot** package to output my results in histograms.
-
-```{r,warning=FALSE,message=FALSE}
-#Setting the function for uni-,bi- and tri- grams
-
-unigram<-TermDocumentMatrix(corpus)
+Structuring my findings into a document feature matrix, I made use of the popular **ggplot** package to output my results in histograms.
 
 
-#Creating bigram tokenizing function to recognise two words cluster.
-bigram <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
-bigram<-TermDocumentMatrix(corpus, control = list(tokenize = bigram))
-
-#Creating trigram tokenizing functions to recognise three words cluster.
-trigram <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
-trigram<-TermDocumentMatrix(corpus, control = list(tokenize = trigram))
-
-
-
-# To structure the TermDocumentMatrix in a data frame
-frequency_dataframe<-function(x){
-   ngram<-sort(rowSums(as.matrix(x)), decreasing = TRUE)
-  return(data.frame(ngram=names(ngram),frequency=ngram))
-
-}
-
-#Setting the plotting function. Only the top 30 n-grams are plotted.
-histogram <- function(corpus,x_axis,title) {
-  corpus<-frequency_dataframe(corpus)
-  corpus<-corpus[1:30,]
-  ggplot(corpus, aes(x=reorder(ngram, -frequency),y= frequency)) +
-    geom_bar(stat = "identity", colour = "black")+
-    labs(title=title,x = x_axis, y = "Frequency") +
-    theme(axis.text.x = element_text(angle = 60, size = 12, hjust = 1)) 
-    
-}
-
-
-
-
-```
 1. unigram histogram
 
 ```{r,warning=FALSE,message=FALSE}
+dfm1<-Documentfeaturematrix(data.sample,1L)
+unigram<-Top30ngrams(dfm1)
 histogram(unigram,"unigram" ,"Top 30 Unigrams")
 
 ```
@@ -181,6 +165,8 @@ histogram(unigram,"unigram" ,"Top 30 Unigrams")
 2. bi-gram histogram
 
 ```{r,warning=FALSE,message=FALSE}
+dfm2<-Documentfeaturematrix(data.sample,2L)
+bigram<-Top30ngrams(dfm2)
 histogram(bigram,"bigram" ,"Top 30 Bigrams")
 
 ```
@@ -188,9 +174,12 @@ histogram(bigram,"bigram" ,"Top 30 Bigrams")
 3. tri-gram histogram
 
 ```{r,warning=FALSE,message=FALSE}
+dfm3<-Documentfeaturematrix(data.sample,3L)
+trigram<-Top30ngrams(dfm3)
 histogram(trigram,"trigram" ,"Top 30 Trigrams")
 
 ```
 
+From the histogram outputs, we do not observe any unusual output of ngrams.The top occuring phrases for unigram,bigram and trigram are 'the','of the and 'one of the'.
 
-Exploratory analysis complete. This concludes my milestone report.
+Exploratory analysis complete. The next step is to produce a functioning Shiny app that can predict the next word from input phrases. This concludes my milestone report.
