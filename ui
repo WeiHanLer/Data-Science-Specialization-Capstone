@@ -17,7 +17,8 @@ shinyUI(navbarPage("Data Science Capstone Project",
                             # Sidebar
                             sidebarLayout(
                               sidebarPanel(
-                                helpText("Text Input Box. Mind your spelling"),
+                                h3("Text Input Box"),
+                                helpText("Mind your spelling"),
                                 textInput("inputString", "Enter a word or phrase",value = ""),
                                 submitButton("Enter")
                               ),
@@ -46,13 +47,5 @@ shinyUI(navbarPage("Data Science Capstone Project",
                               )
                             )
                     )
-                   # tabPanel("About",
-                   #          mainPanel(
-                   #            HTML("<strong>LER WEI HAN</strong>"),
-                   #            br(),
-                   #            HTML("<strong>22 Oct 2018</strong>"),
-                   #            br()
-                   #           
-                   #          )
-                   # )
+                 
 ))
