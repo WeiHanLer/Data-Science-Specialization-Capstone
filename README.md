@@ -1,4 +1,4 @@
-# Data-Science-Specialization-Capstone
+# Data Science Specialization Capstone
 
 ## Overview
 
