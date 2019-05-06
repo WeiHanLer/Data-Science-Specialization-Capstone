@@ -12,10 +12,12 @@ More informaton on this course can be found [here][link], at the official John H
 [link]:https://www.coursera.org/learn/data-science-project
 [links]:https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip
 
+## Shiny App & Simple Presentation Deck
+The prototype of the Word Prediction App and the submitted presentation deck can be accessed below:
+[Word Prediction App](https://lerweihan.shinyapps.io/DataScienceFinalProject)
+[Presentation Deck](http://rpubs.com/whyler12/FINAL) for this 
 
-[Presentation Deck](http://rpubs.com/whyler12/FINAL)
-
-## Text Prediction Model 
+## Concept of the Text Prediction Model 
 
 The idea behind the prediction model is the Katz Back-off algorithm. 
 
