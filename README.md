@@ -5,7 +5,6 @@
 This is the **final** project in the data science capstone which completes the data science specialization course.
 
 The objective of the project is to produce a Shiny app that is capable of predicting the next word that comes after the user's input of words. . The base [dataset][links] used to train the prediction model consists of texts from different sources: twitter, blogs and news articles. 
-A milestone report on the completion of this project is also produced:http://rpubs.com/whyler12/CMP
 
 More informaton on this course can be found [here][link], at the official John Hopkins University Data Science Capstone Coursera page. 
 
@@ -18,6 +17,9 @@ The prototype of the Word Prediction App and the submitted presentation deck can
 
 #### [Word Prediction App](https://lerweihan.shinyapps.io/DataScienceFinalProject)
 #### [Presentation Deck](http://rpubs.com/whyler12/FINAL) 
+
+A milestone report on the completion of this project is also produced:http://rpubs.com/whyler12/CMP
+
 
 ## Concept of the Text Prediction Model 
 
