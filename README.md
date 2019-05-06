@@ -13,6 +13,8 @@ More informaton on this course can be found [here][link], at the official John H
 [links]:https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip
 
 
+[Presentation Deck] (http://rpubs.com/whyler12/FINAL)
+
 ## Text Prediction Model 
 
 The idea behind the prediction model is the Katz Back-off algorithm. 
