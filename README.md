@@ -14,8 +14,9 @@ More informaton on this course can be found [here][link], at the official John H
 
 ## Shiny App & Simple Presentation Deck
 The prototype of the Word Prediction App and the submitted presentation deck can be accessed below:
-[Word Prediction App](https://lerweihan.shinyapps.io/DataScienceFinalProject)
-[Presentation Deck](http://rpubs.com/whyler12/FINAL) for this 
+
+#### [Word Prediction App](https://lerweihan.shinyapps.io/DataScienceFinalProject)
+#### [Presentation Deck](http://rpubs.com/whyler12/FINAL) for this 
 
 ## Concept of the Text Prediction Model 
 
