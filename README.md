@@ -13,7 +13,7 @@ More informaton on this course can be found [here][link], at the official John H
 [links]:https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip
 
 ## Shiny App,Simple Presentation Deck & Milestone Report
-The prototype of the Word Prediction App and the submitted presentation deck can be accessed below:
+The prototype of the Word Prediction App, submitted presentation deck as well as the milestone report can be accessed below:
 
 #### [Word Prediction App](https://lerweihan.shinyapps.io/DataScienceFinalProject)
 #### [Presentation Deck](http://rpubs.com/whyler12/FINAL) 
