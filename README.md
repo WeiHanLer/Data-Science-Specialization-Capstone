@@ -17,7 +17,7 @@ The prototype of the Word Prediction App, submitted presentation deck as well as
 
 #### [Word Prediction App](https://lerweihan.shinyapps.io/DataScienceFinalProject)
 #### [Presentation Deck](http://rpubs.com/whyler12/FINAL) 
-#### [Milestone report](http://rpubs.com/whyler12/CMP) 
+#### [Milestone report](http://rpubs.com/whyler12/CMP2) 
 
 
 
